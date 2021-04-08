@@ -26,14 +26,12 @@ This module is used as an interface between the [powGen-wtk-nsrdb](https://githu
         from RenewableSites import RenewableSites
 
         # Get annual capacity factors from default data files
-        renewableSites = getAnnualCF()
+        renewableSites = RenewableSites.getAnnualCF()
 
         # Get hourly capacity factors from default data files
-        renewableSites = getHourlyCF()
+        renewableSites = RenewableSites.getHourlyCF()
 
         # Get capacity factors from different data files
-        renewableSites = getHourlyCF(solar_filename=<file_path>, wind_filename=<file_path>)
+        renewableSites = RenewableSites.getHourlyCF()(solar_filename=<file_path>, wind_filename=<file_path>)
 
-**Note:** The returned DataFrames include columns for each site's latitude and longitude *in addition to* capacity factors. To return capacity factors without latitudes and longitudes, use `getHourlyCF(cf_only=True)`.
-
-
+**Note:** The returned DataFrames include columns for each site's latitude and longitude *in addition to* capacity factors. To return capacity factors without latitudes and longitudes, use `RenewableSites.getHourlyCF(cf_only=True)`.
