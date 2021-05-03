@@ -12,13 +12,10 @@ This module is used as an interface between the [powGen-wtk-nsrdb](https://githu
 
         Project
         |--main.py
+        |--solar_cf_<powGen-params>.csv
+        |--wind_cf_<powGen-params>.csv
         |--RenewableSites
-            |--default
-            |   |--solar_cf_<powGen-params>.csv
-            |   |--wind_cf_<powGen-params>.csv
             |--RenewableSites.py
-
-3. Move any new `powGen-wtk-nsrdb.py` output CSV's in `RenewableSites/data`. There are two default (example) files saved in this repository.
             
 3. Use the `RenewableSites` module from main:
 
@@ -26,12 +23,9 @@ This module is used as an interface between the [powGen-wtk-nsrdb](https://githu
         from RenewableSites import RenewableSites
 
         # Get annual capacity factors from default data files
-        renewableSites = RenewableSites.getAnnualCF()
+        renewableSites = RenewableSites.getAnnualCF(solar_cf_<powGen-params>.csv, wind_cf_<powGen-params>.csv)
 
         # Get hourly capacity factors from default data files
-        renewableSites = RenewableSites.getHourlyCF()
+        renewableSites = RenewableSites.getHourlyCF(solar_cf_<powGen-params>.csv, wind_cf_<powGen-params>.csv)
 
-        # Get capacity factors from different data files
-        renewableSites = RenewableSites.getHourlyCF()(solar_filename=<file_path>, wind_filename=<file_path>)
-
-**Note:** The returned DataFrames include columns for each site's latitude and longitude *in addition to* capacity factors. To return capacity factors without latitudes and longitudes, use `RenewableSites.getHourlyCF(cf_only=True)`.
+**Note:** The returned DataFrames include columns for each site's latitude and longitude *in addition to* capacity factors. To return capacity factors without latitudes and longitudes, use `RenewableSites.getHourlyCF(...,cf_only=True)`.

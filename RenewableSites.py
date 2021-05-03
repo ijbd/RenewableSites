@@ -9,12 +9,22 @@ import numpy as np
 import pandas as pd
 import os
 
-local_path = os.path.dirname(__file__)
+def _getAnnualCF(filename, cf_only=False):
+    re = pd.read_csv(filename,index_col=0)
 
-default_solar_filename = os.path.join(local_path,'default/solar_cf_NY_PA_OH_WV_KY_TN_VA_MD_DE_NC_NJ_0.5_2014.csv')
-default_wind_filename = os.path.join(local_path,'default/wind_cf_NY_PA_OH_WV_KY_TN_VA_MD_DE_NC_NJ_0.5_2014.csv')
+    # get locations
+    lats = [float(c.split()[0]) for c in re.columns]
+    lons = [float(c.split()[1]) for c in re.columns]
+    
+    cf = pd.DataFrame()
+    if not cf_only:
+        cf['Latitude'] = lats
+        cf['Longitude'] = lons
+    cf['Annual CF'] = np.average(re.values.T,axis=1)
 
-def getAnnualCF(solar_filename=default_solar_filename, wind_filename=default_wind_filename, cf_only=False):
+    return cf
+
+def getAnnualCF(solar_filename, wind_filename, cf_only=False):
     '''
     Args
     -------
@@ -25,31 +35,36 @@ def getAnnualCF(solar_filename=default_solar_filename, wind_filename=default_win
     -------
         `renewableSites` (pd.Series) : Series of lat/lons
     '''
-    solar = pd.read_csv(solar_filename,index_col=0)
-    wind = pd.read_csv(wind_filename,index_col=0)
-
-    # get locations
-    solarLats = [float(c.split()[0]) for c in solar.columns]
-    solarLons = [float(c.split()[1]) for c in solar.columns]
-    windLats = [float(c.split()[0]) for c in wind.columns]
-    windLons = [float(c.split()[1]) for c in wind.columns]
-
-    # fill
-    renewableSites = pd.DataFrame()
+    solar = _getAnnualCF(solar_filename, cf_only)
     if not cf_only:
-        renewableSites['Latitude'] = np.append(solarLats,windLats)
-        renewableSites['Longitude'] = np.append(solarLons,windLons)
+        solar['Technology'] = 's'
 
-    # get generation 
-    solarGen = np.average(solar.values.T,axis=1)
-    windGen = np.average(wind.values.T,axis=1)
+    wind = _getAnnualCF(wind_filename, cf_only)
+    if not cf_only:
+        wind['Technology'] = 'w'
 
-    # Annual CF
-    renewableSites['Annual CF'] = np.append(solarGen,windGen)
+    renewableSites = solar.append(wind)
 
     return renewableSites
 
-def getHourlyCF(solar_filename=default_solar_filename, wind_filename=default_wind_filename, cf_only=False):
+def _getHourlyCF(filename, cf_only):
+    re = pd.read_csv(filename,index_col=0)
+
+    # get locations
+    lats = [float(c.split()[0]) for c in re.columns]
+    lons = [float(c.split()[1]) for c in re.columns]
+    
+    cf = pd.DataFrame()
+    cf['Latitude'] = lats
+    cf['Longitude'] = lons
+    gen = re.values.T
+
+    for i in range(gen.shape[1]):
+        cf['Hr {}'.format(i)] = gen[:,i]
+
+    return cf
+
+def getHourlyCF(solar_filename, wind_filename, cf_only=False):
     '''
     Args
     -------
